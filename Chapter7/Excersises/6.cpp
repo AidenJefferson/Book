@@ -26,6 +26,8 @@
  *     "swim"
  */
 
+// NOTE: use calculator00.cpp
+
 #include <iostream>
 #include <string>
 
