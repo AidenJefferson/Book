@@ -1,1 +1,1 @@
-// Try this excersises from book. Already done.
+// Try this excersises. See calculator00.cpp.
