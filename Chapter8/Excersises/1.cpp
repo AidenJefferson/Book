@@ -1,4 +1,7 @@
-// This file contains all of chapter 7 drills and excersises.
+// Modify the calculator program from Chapter 7 to make the input stream an explicit parameter (as shown in §8.5.8),
+// rather than simply using cin. Also give the Token_stream constructor (§7.8.2) an istream& parameter so that when
+// we figure out how to make our own istreams (e.g., attached to files), we can use the calculator for those. Hint: Don’t try
+// to copy an istream.
 
 /*
     Simple calculator
@@ -252,9 +255,8 @@ double Symbol_table::declare(std::string var, double val, bool b)
 
 // -----------------------------------------------------------------------
 
-Token_stream ts;        // provides get() and putback()
 Symbol_table st;        // provides get(), set(), is_declared() and declare()
-double expression();    // declaration so that primary() can call expression()
+double expression(Token_stream& ts);    // declaration so that primary() can call expression(Token_streamexpression() ts)
 
 // -----------------------------------------------------------------------
 
@@ -274,26 +276,26 @@ double my_pow(double base, int expo)
 
 // deal with numbers, unary +/-, parentheses, sqrt, pow, names and assignments
 // calls expression()
-double primary()
+double primary(Token_stream& ts)
 {
 	Token t = ts.get();
 	switch (t.kind) {
 	case '(':   // handle '(' expression ')'
-	{	double d = expression();
+	{	double d = expression(ts);
 		t = ts.get();
 		if (t.kind != ')') error("')' expected");
         return d;
 	}
 	case '-':
-		return - primary();
+		return - primary(ts);
     case '+':
-        return primary();
+        return primary(ts);
 	case number:
 		return t.value;
     case name:
     {   Token t2 = ts.get();    // check next token
         if (t2.kind == '=') {   // handle name '=' expression
-            double d = expression();
+            double d = expression(ts);
             st.set(t.name,d);
             return d;
         }
@@ -305,7 +307,7 @@ double primary()
     case square_root:   // handle 'sqrt(' expression ')'
     {   t = ts.get();
         if (t.kind != '(') error("'(' expected");
-        double d = expression();
+        double d = expression(ts);
         if (d < 0) error("Square roots of negative numbers... nope!");
         t = ts.get();
         if (t.kind != ')') error("')' expected");
@@ -314,7 +316,7 @@ double primary()
     case power: // handle 'pow(' expression ',' integer ')'
     {   t = ts.get();
         if (t.kind != '(') error("'(' expected");
-        double d = expression();
+        double d = expression(ts);
         t = ts.get();
         if (t.kind != ',') error("',' expected");
         t = ts.get();
@@ -334,26 +336,26 @@ double primary()
 
 // deal with *, / and %
 // calls primary()
-double term()
+double term(Token_stream& ts)
 {
-	double left = primary();
+	double left = primary(ts);
     Token t = ts.get(); // get the next token from Token_stream
 
 	while (true) {
 		switch(t.kind) {
 		case '*':
-			left *= primary();
+			left *= primary(ts);
             t = ts.get();
 			break;
 		case '/':
-		{	double d = primary();
+		{	double d = primary(ts);
 			if (d == 0) error("divide by zero");
 			left /= d;
             t = ts.get();
 			break;
 		}
         case '%':
-        {   double d = primary();
+        {   double d = primary(ts);
             int i1 = int(left);
             if (i1 != left) error("left-hand operand of % not int");
             int i2 = int(d);
@@ -374,19 +376,19 @@ double term()
 
 // deal with + and -
 // calls term()
-double expression()
+double expression(Token_stream& ts)
 {
-	double left = term();   // read and evaluate a Term
+	double left = term(ts);   // read and evaluate a Term
     Token t = ts.get();     // get the next Token from the Token stream
 
 	while (true) {
 		switch(t.kind) {
 		case '+':
-			left += term(); // evaluate Term and add
+			left += term(ts); // evaluate Term and add
             t = ts.get();
 			break;
 		case '-':
-			left -= term(); // evaluate Term and subtract
+			left -= term(ts); // evaluate Term and subtract
             t = ts.get();
 			break;
         case '=':
@@ -403,7 +405,7 @@ double expression()
 // assume we have seen "let" or "const"
 // handle: name = expression
 // declare a variable called "name" with the initial value "expression"
-double declaration(bool b)
+double declaration(bool b, Token_stream ts)
 {
 	Token t = ts.get();
 	if (t.kind != name) error("name expected in declaration");
@@ -412,7 +414,7 @@ double declaration(bool b)
 	Token t2 = ts.get();
 	if (t2.kind != '=') error("= missing in declaration of variabl");
 
-	double d = expression();
+	double d = expression(ts);
     st.declare(var_name,d,b);
 	return d;
 }
@@ -420,24 +422,24 @@ double declaration(bool b)
 // -----------------------------------------------------------------------
 
 // handles declarations and expressions
-double statement()
+double statement(Token_stream& ts)
 {
 	Token t = ts.get();
 	switch(t.kind) {
 	case let:
-		return declaration(false);
+		return declaration(false, ts);
     case con:
-        return declaration(true);
+        return declaration(true, ts);
 	default:
 		ts.putback(t);
-		return expression();
+		return expression(ts);
 	}
 }
 
 // -----------------------------------------------------------------------
 
 // clean input after error
-void clean_up_mess()
+void clean_up_mess(Token_stream& ts)
 {
 	ts.ignore(print);
 }
@@ -457,7 +459,7 @@ const std::string prompt = "> ";
 const std::string result = "= "; // used to indicate that what follows is a result
 
 // expression evaluation loop
-void calculate()
+void calculate(Token_stream& ts)
 {
 	while (std::cin)
     try {
@@ -468,12 +470,12 @@ void calculate()
         else {
             if (t.kind == quit) return;
             ts.putback(t);
-            std::cout << result << statement() << std::endl;
+            std::cout << result << statement(ts) << std::endl;
         }
 	}
 	catch(std::exception& e) {
 		std::cerr << e.what() << std::endl;   // write error message
-		clean_up_mess();
+		clean_up_mess(ts);
 	}
 }
 
@@ -486,8 +488,10 @@ try
     st.declare("pi",3.1415926535,true);
     st.declare("e",2.7182818284,true);
     st.declare("k",1000,true);
+	
+	Token_stream ts;
 
-	calculate();
+	calculate(ts);
 
 	return 0;
 }
