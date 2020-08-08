@@ -1,6 +1,6 @@
 #include "Chrono.h"
 
-namespace Chrono{
+namespace Chrono {
 
     Date::Date(int day, Month month, int year)
         : d{day}, m{month}, y{year} 
