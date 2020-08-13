@@ -1,0 +1,7 @@
+This is a test file
+that should output
+only the lines that
+contain the word test
+which are lines 1
+line 3 test and
+line 5.

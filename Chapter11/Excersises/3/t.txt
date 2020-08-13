@@ -1,0 +1,3 @@
+This is another test file that should remove all of the 
+vowels in each of these words. It should also work on 
+multiple lines of text.

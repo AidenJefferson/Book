@@ -1,0 +1,1 @@
+this is a test to see whether the program will output lower case especialy on multiple lines of text test 1 yes no yes no i dont know what to type to test 1234567734 just want to get to the next line
