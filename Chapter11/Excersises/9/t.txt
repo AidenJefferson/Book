@@ -1,0 +1,9 @@
+this is a test
+to see if the 
+program 9.cpp
+will convert
+this text to
+binary and then
+be able to re-convert
+the text back. WE WILL SEE.
+123 ^ & ;
