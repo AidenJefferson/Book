@@ -7,7 +7,7 @@ int main()
 try {
     // create window area
     Graph_lib::Point ls{100, 100};
-    Graph_lib::Simple_window win{ ls, 800, 600, "Excersise 2" };
+    Graph_lib::Simple_window win{ ls, 800, 600, "Excersise 3" };
     
     // create Initials
     Graph_lib::Text first(Graph_lib::Point{ 50, 200 }, "A");
