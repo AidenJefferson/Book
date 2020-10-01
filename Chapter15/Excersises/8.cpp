@@ -1,5 +1,6 @@
-// Design and implement a bar graph class. Its basic data is a vector<double> holding N values, and each value should
-// be represented by a “bar” that is a rectangle where the height represents the value.
+// Here is a collection of heights in centimeters together with the number of people in a group of that height (rounded to the
+// nearest 5cm): (170, 7), (175, 9), (180, 23), (185, 17), (190, 6), (195, 1). How would you graph that data ? If you can’t think
+// of anything better, do a bar graph. Remember to provide axes and labels. Place the data in a file and read it from that file.
 
 #include "Graph.h"
 #include "Simple_window.h"
@@ -38,6 +39,16 @@ namespace Graph_lib {
 
         double bar_width = w / double(data.size());
 
+        
+        if (fill_color().visibility())
+        {	// fill
+            fl_color(fill_color().as_int());
+             for (int i = 0; i < data.size(); i++) {
+                fl_rectf(point(0).x + i * bar_width, point(0).y - data[i], bar_width + 1, data[i] + 1);
+            }
+            fl_color(color().as_int());	// reset color
+        }
+
         if (color().visibility())
         {	// edge on top of fill
             fl_color(color().as_int());
@@ -59,20 +70,47 @@ namespace Graph_lib {
     }
 }
 
+// create data storage
+struct Data {
+    int height;
+    int persons;
+};
+
+std::istream& operator>>(std::istream& is, Data& d) {
+    char ch1, ch2, ch3;
+    int h, p;
+    is >> ch1 >> h >> ch2 >> p >> ch3;
+    if (!is || ch1 != '(' || ch2 != ',' || ch3 != ')') {
+        is.setstate(std::ios_base::failbit);
+        return is;
+    }
+    else {
+        d.height = h;
+        d.persons = p;
+    }
+
+    return is;
+}
+
 int main()
 try {
     using namespace Graph_lib;
 
-    Simple_window win(Point{ 100,0 }, 1000, 1000, "Excersie 6");
+    ifstream ifs("data.txt");
+    if (!ifs) throw std::runtime_error("could not open file");
 
-    Bar_graph t{ Point{200,550}, 400, 500, 4, 10, "Random Data" };
-    t.set_color(Color::black);
-    t.add_data(50, "first");
-    t.add_data(70, "second");
-    t.add_data(40, "third");
-    t.add_data(150, "fourth");
+    Simple_window win(Point{ 100,0 }, 800, 600, "Excersie 6");
+   
+    Bar_graph g{ Point{400,300}, 30, 200, 6, 200 / 5, "Heights(cm)" };
+    g.set_color(Color::black);
+   
+    for (Data d; ifs >> d;) {
+        g.add_data(d.persons, to_string(d.height));
+        std::cout << d.persons << "," << to_string(d.height) << std::endl;
+    }
 
-    win.attach(t);
+
+    win.attach(g);
     win.wait_for_button();
 
     return 0;

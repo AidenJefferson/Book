@@ -1,5 +1,4 @@
-// Design and implement a bar graph class. Its basic data is a vector<double> holding N values, and each value should
-// be represented by a “bar” that is a rectangle where the height represents the value.
+// Elaborate the bar graph class to allow labeling of the graph itself and its individual bars. Allow the use of color.
 
 #include "Graph.h"
 #include "Simple_window.h"
@@ -38,6 +37,16 @@ namespace Graph_lib {
 
         double bar_width = w / double(data.size());
 
+        
+        if (fill_color().visibility())
+        {	// fill
+            fl_color(fill_color().as_int());
+             for (int i = 0; i < data.size(); i++) {
+                fl_rectf(point(0).x + i * bar_width, point(0).y - data[i], bar_width + 1, data[i] + 1);
+            }
+            fl_color(color().as_int());	// reset color
+        }
+
         if (color().visibility())
         {	// edge on top of fill
             fl_color(color().as_int());
@@ -71,6 +80,7 @@ try {
     t.add_data(70, "second");
     t.add_data(40, "third");
     t.add_data(150, "fourth");
+    t.set_fill_color(Color::blue);
 
     win.attach(t);
     win.wait_for_button();
