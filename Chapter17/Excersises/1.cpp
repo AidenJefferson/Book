@@ -1,4 +1,4 @@
-// What is the output format of pointer values on your implementation ? Hint : Don’t read the documentation.
+// 1. What is the output format of pointer values on your implementation ? Hint : Don’t read the documentation.
 
 type x = 89; // declare a variable of "type"
 
